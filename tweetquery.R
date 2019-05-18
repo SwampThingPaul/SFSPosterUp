@@ -1,6 +1,7 @@
 #https://rtweet.info
 #https://www.johnlittle.info/project/custom/rtweet/network_graph_more_examples.nb.html
 #https://www.earthdatascience.org/courses/earth-analytics/get-data-using-apis/use-twitter-api-r/
+#http://www.rdatamining.com/docs/twitter-analysis-with-r
 
 #Clears Everything...start fresh.
 rm(list=ls(all=T));cat("\014");dev.off()
