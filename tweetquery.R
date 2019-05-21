@@ -1,3 +1,11 @@
+## Society of Freshwater Science
+##
+## Social media informatics
+##
+## Code was compiled by Paul Julian
+## contact info: pauljulianPhD@gmail.com
+
+# Some helpful sites
 #https://rtweet.info
 #https://www.johnlittle.info/project/custom/rtweet/network_graph_more_examples.nb.html
 #https://www.earthdatascience.org/courses/earth-analytics/get-data-using-apis/use-twitter-api-r/
@@ -7,6 +15,7 @@
 rm(list=ls(all=T));cat("\014");dev.off()
 
 library(rtweet)
+library(plyr)
 library(httpuv)
 library(AnalystHelper)
 
@@ -34,20 +43,32 @@ cum.dat.sfs.post$time=date.fun(cum.dat.sfs.post$time,form="%F %X",tz="UTC")
 
 xlim.val=date.fun(c("2019-05-17 05:00:00",as.character(Sys.time()+ddays(1))),form="%F %X",tz="UTC")
 xmaj=seq(xlim.val[1],xlim.val[2],"24 hours");xmin=seq(xlim.val[1],xlim.val[2],"12 hours")
-ylim.val=c(0,700);by.y=200;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
 
-#png(filename=paste0(plot.path,format(Sys.Date(),"%Y"),format(Sys.Date(),"%m"),format(Sys.Date(),"%d"),"_tweetstas.png"),width=5,height=3.5,units="in",res=200,type="windows",bg="white")
+
+#png(filename=paste0(plot.path,format(Sys.Date(),"%Y"),format(Sys.Date(),"%m"),format(Sys.Date(),"%d"),"_tweetstas.png"),width=6,height=3.5,units="in",res=200,type="windows",bg="white")
 par(family="serif",oma=c(1.5,2,1,0.25),mar=c(1.5,2,0.5,1))
+layout(matrix(1:2,1,2,byrow = T))
+
+ylim.val=c(0,plyr::round_any(max(cum.dat.sfs$cum_count),1500));by.y=500;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
 plot(cum_count~time,cum.dat.sfs,xlim=xlim.val,ylim=ylim.val,yaxt="n",xaxt="n",ylab=NA,xlab=NA,type="n",yaxs="i")
 abline(h=ymaj,v=xmaj,lty=3,col="grey")
 with(cum.dat.sfs,shaded.range(time,rep(0,nrow(cum.dat.sfs)),cum_count,sfs.cols[1],lty=1))
-with(cum.dat.sfs.post,shaded.range(time,rep(0,nrow(cum.dat.sfs.post)),cum_count,sfs.cols[3],lty=1))
-axis_fun(1,line=-0.5,xmaj,xmin,format(xmaj,"%b-%d %H:%M"))
+axis_fun(1,line=-0.5,xmaj,xmin,format(xmaj,"%b-%d"))
 axis_fun(2,ymaj,ymin,ymaj);box(lwd=1)
-mtext(side=1,line=1.75,"Date (Month-Day Hour (UTC))")
 mtext(side=2,line=2.25,"Cumulative Total")
-legend("topleft",legend=c(expression(italic("#2019SFS")),expression(italic("#2019SFSPostUp"))),pch=22,pt.bg=adjustcolor(sfs.cols[1:2],0.5),pt.cex=2,cex=1,bty="n",y.intersp=1,x.intersp=0.75,xpd=NA,xjust=0.5)
-text(x=xlim.val[2],y=ylim.val[2]-25,"Source: Data collected from\nTwitter's REST API via rtweet",col="red",font=3,adj=1,xpd=NA,cex=0.5)
+mtext(side=3,expression(italic("#2019SFS")))
+#legend("topleft",legend=c(expression(italic("#2019SFS")),expression(italic("#2019SFSPostUp"))),pch=22,pt.bg=adjustcolor(sfs.cols[1:2],0.5),pt.cex=2,cex=1,bty="n",y.intersp=1,x.intersp=0.75,xpd=NA,xjust=0.5)
+text(x=xlim.val[1],y=ylim.val[2]-25,"Source: Data collected from Twitter's REST API via rtweet",col="red",font=3,adj=0,xpd=NA,cex=0.5)
+
+ylim.val=c(0,plyr::round_any(max(cum.dat.sfs.post$cum_count),150));by.y=50;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
+plot(cum_count~time,cum.dat.sfs,xlim=xlim.val,ylim=ylim.val,yaxt="n",xaxt="n",ylab=NA,xlab=NA,type="n",yaxs="i")
+abline(h=ymaj,v=xmaj,lty=3,col="grey")
+with(cum.dat.sfs.post,shaded.range(time,rep(0,nrow(cum.dat.sfs.post)),cum_count,sfs.cols[3],lty=1))
+axis_fun(1,line=-0.5,xmaj,xmin,format(xmaj,"%b-%d"))
+axis_fun(2,ymaj,ymin,ymaj);box(lwd=1)
+mtext(side=3,expression(italic("#2019SFSPostUp")))
+mtext(side=1,outer=T,"Date (Month-Day)")
+
 dev.off()
 
 
@@ -55,7 +76,7 @@ dev.off()
 
 # SFS2019 versus 2019SFS --------------------------------------------------
 
-rt.2019sfs=search_tweets("#2019SFS",include_rts = TRUE,lang = "en",type = "mixed",n=20000)
+rt.2019sfs=search_tweets2("#2019SFS",include_rts = TRUE,lang = "en",type = "mixed",n=20000,retryonratelimit = T)
 rt.2019sfs$Hashtag="#2019SFS"
 rt.sfs2019=search_tweets("#SFS2019",include_rts = TRUE,lang = "en",type = "mixed",n=20000)
 rt.sfs2019$Hashtag="#SFS2019"
@@ -65,7 +86,7 @@ rt.SFS2019.agg=data.frame(ts_plot(rt.sfs2019,"1 days")$data)
 
 xlim.val=date.fun(c("2019-05-09",as.character(Sys.Date()+ddays(1))),form="%F",tz="UTC")
 xmaj=seq(xlim.val[1],xlim.val[2],"2 days");xmin=seq(xlim.val[1],xlim.val[2],"1 days")
-ylim.val=c(0,200);by.y=50;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
+ylim.val=c(0,600);by.y=200;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
 
 #png(filename=paste0(plot.path,format(Sys.Date(),"%Y"),format(Sys.Date(),"%m"),format(Sys.Date(),"%d"),"_2019SFS_v_SFS2019.png"),width=5,height=3.5,units="in",res=200,type="windows",bg="white")
 par(family="serif",oma=c(1.5,2,1,0.25),mar=c(1.5,2,0.5,1))
@@ -81,3 +102,4 @@ legend("topleft",legend=c(expression(italic("#2019SFS")),expression(italic("#SFS
 legend("topleft",legend=c(expression(italic("#2019SFS")),expression(italic("#SFS2019"))),pch=c(21,23),lty=0,lwd=0.1,pt.bg=sfs.cols[1:2],pt.cex=1.25,cex=1,bty="n",y.intersp=1,x.intersp=0.75,xpd=NA,xjust=0.5)
 text(x=xlim.val[2],y=ylim.val[2],"Source: Data collected from\nTwitter's REST API via rtweet",col="red",font=3,adj=1,xpd=NA,cex=0.5)
 dev.off()
+
