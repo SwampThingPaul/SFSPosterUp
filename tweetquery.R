@@ -43,16 +43,14 @@ cum.dat.sfs.post$time=date.fun(cum.dat.sfs.post$time,form="%F %X",tz="UTC")
 
 xlim.val=date.fun(c("2019-05-17 05:00:00",as.character(Sys.time()+ddays(1))),form="%F %X",tz="UTC")
 xmaj=seq(xlim.val[1],xlim.val[2],"24 hours");xmin=seq(xlim.val[1],xlim.val[2],"12 hours")
-
-
 #png(filename=paste0(plot.path,format(Sys.Date(),"%Y"),format(Sys.Date(),"%m"),format(Sys.Date(),"%d"),"_tweetstas.png"),width=6,height=3.5,units="in",res=200,type="windows",bg="white")
 par(family="serif",oma=c(1.5,2,1,0.25),mar=c(1.5,2,0.5,1))
 layout(matrix(1:2,1,2,byrow = T))
 
-ylim.val=c(0,plyr::round_any(max(cum.dat.sfs$cum_count),1500));by.y=500;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
+ylim.val=c(0,plyr::round_any(max(cum.dat.sfs$cum_count),2000));by.y=500;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
 plot(cum_count~time,cum.dat.sfs,xlim=xlim.val,ylim=ylim.val,yaxt="n",xaxt="n",ylab=NA,xlab=NA,type="n",yaxs="i")
 abline(h=ymaj,v=xmaj,lty=3,col="grey")
-with(cum.dat.sfs,shaded.range(time,rep(0,nrow(cum.dat.sfs)),cum_count,sfs.cols[1],lty=1))
+with(subset(cum.dat.sfs,time!=date.fun(Sys.Date(),form="%F",tz="UTC")),shaded.range(time,rep(0,length(time)),cum_count,sfs.cols[1],lty=1))
 axis_fun(1,line=-0.5,xmaj,xmin,format(xmaj,"%b-%d"))
 axis_fun(2,ymaj,ymin,ymaj);box(lwd=1)
 mtext(side=2,line=2.25,"Cumulative Total")
@@ -63,7 +61,7 @@ text(x=xlim.val[1],y=ylim.val[2]-25,"Source: Data collected from Twitter's REST 
 ylim.val=c(0,plyr::round_any(max(cum.dat.sfs.post$cum_count),150));by.y=50;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
 plot(cum_count~time,cum.dat.sfs,xlim=xlim.val,ylim=ylim.val,yaxt="n",xaxt="n",ylab=NA,xlab=NA,type="n",yaxs="i")
 abline(h=ymaj,v=xmaj,lty=3,col="grey")
-with(cum.dat.sfs.post,shaded.range(time,rep(0,nrow(cum.dat.sfs.post)),cum_count,sfs.cols[3],lty=1))
+with(subset(cum.dat.sfs.post,time!=date.fun(Sys.Date(),form="%F",tz="UTC")),shaded.range(time,rep(0,length(time)),cum_count,sfs.cols[3],lty=1))
 axis_fun(1,line=-0.5,xmaj,xmin,format(xmaj,"%b-%d"))
 axis_fun(2,ymaj,ymin,ymaj);box(lwd=1)
 mtext(side=3,expression(italic("#2019SFSPostUp")))
@@ -86,14 +84,14 @@ rt.SFS2019.agg=data.frame(ts_plot(rt.sfs2019,"1 days")$data)
 
 xlim.val=date.fun(c("2019-05-09",as.character(Sys.Date()+ddays(1))),form="%F",tz="UTC")
 xmaj=seq(xlim.val[1],xlim.val[2],"2 days");xmin=seq(xlim.val[1],xlim.val[2],"1 days")
-ylim.val=c(0,600);by.y=200;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
+ylim.val=c(0,700);by.y=200;ymaj=seq(ylim.val[1],ylim.val[2],by.y);ymin=seq(ylim.val[1],ylim.val[2],by.y/2)
 
-#png(filename=paste0(plot.path,format(Sys.Date(),"%Y"),format(Sys.Date(),"%m"),format(Sys.Date(),"%d"),"_2019SFS_v_SFS2019.png"),width=5,height=3.5,units="in",res=200,type="windows",bg="white")
+png(filename=paste0(plot.path,format(Sys.Date(),"%Y"),format(Sys.Date(),"%m"),format(Sys.Date(),"%d"),"_2019SFS_v_SFS2019.png"),width=5,height=3.5,units="in",res=200,type="windows",bg="white")
 par(family="serif",oma=c(1.5,2,1,0.25),mar=c(1.5,2,0.5,1))
 plot(n~time,rt.2019SFS.agg,xlim=xlim.val,ylim=ylim.val,yaxt="n",xaxt="n",ylab=NA,xlab=NA,type="n")
 abline(h=ymaj,v=xmaj,lty=3,col="grey")
-with(rt.2019SFS.agg,pt_line(time,n,2,sfs.cols[1],2,21,sfs.cols[1],cex=1.5,pt.lwd=0.1))
-with(rt.SFS2019.agg,pt_line(time,n,2,sfs.cols[2],2,23,sfs.cols[2],cex=1.5,pt.lwd=0.1))
+with(subset(rt.2019SFS.agg,time!=date.fun(Sys.Date(),form="%F",tz="UTC")),pt_line(time,n,2,sfs.cols[1],2,21,sfs.cols[1],cex=1.5,pt.lwd=0.1))
+with(subset(rt.SFS2019.agg,time!=date.fun(Sys.Date(),form="%F",tz="UTC")),pt_line(time,n,2,sfs.cols[2],2,23,sfs.cols[2],cex=1.5,pt.lwd=0.1))
 axis_fun(1,line=-0.5,xmaj,xmin,format(xmaj,"%b-%d"))
 axis_fun(2,ymaj,ymin,ymaj);box(lwd=1)
 mtext(side=1,line=1.75,"Date (Month-Day)")
@@ -103,3 +101,15 @@ legend("topleft",legend=c(expression(italic("#2019SFS")),expression(italic("#SFS
 text(x=xlim.val[2],y=ylim.val[2],"Source: Data collected from\nTwitter's REST API via rtweet",col="red",font=3,adj=1,xpd=NA,cex=0.5)
 dev.off()
 
+
+## GGPlot version (experimenting)
+library(ggplot2)
+
+ggplot()+
+  geom_line(col=sfs.cols[1],lwd=2,lty=2,data=rt.2019SFS.agg,aes(x=time,y=n))+geom_point(bg=sfs.cols[1],size=4,pch=21,data=rt.2019SFS.agg,aes(x=time,y=n))+
+  geom_line(col=sfs.cols[2],lwd=2,lty=2,data=rt.SFS2019.agg,aes(x=time,y=n))+geom_point(bg=sfs.cols[2],size=4,pch=23,data=rt.SFS2019.agg,aes(x=time,y=n))+
+  scale_color_manual(name="Twitter Hashtags",
+                     limits=c("#2019SFS","#SFS2019"),
+                      values=sfs.cols)+
+  guides(colour = guide_legend(override.aes = list(pch = c(16, 21), fill = c("red", "white"))))+
+  theme_bw()
